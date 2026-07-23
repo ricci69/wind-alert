@@ -3,7 +3,7 @@ name: Wind Alert Hourly Check
 on:
   schedule:
     # Esegue lo script ogni ora
-    - cron: '0 * * * *'
+    - cron: '55 * * * *'
   workflow_dispatch: # Permette l'esecuzione manuale per test
 
 jobs:
