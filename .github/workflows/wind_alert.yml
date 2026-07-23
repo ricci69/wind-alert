@@ -3,9 +3,12 @@ name: Wind Alert Hourly Check
 on:
   schedule:
     # Esegue lo script ogni ora
-    - cron: '55 * * * *'
+    - cron: '*/30 * * * *'
   workflow_dispatch: # Permette l'esecuzione manuale per test
 
+permissions:
+  contents: write
+  
 jobs:
   build:
     runs-on: ubuntu-latest
