@@ -2,17 +2,17 @@
   "6h_wind": false,
   "6h_wind_value": 16.6,
   "6h_gust": false,
-  "6h_gust_value": 31.7,
+  "6h_gust_value": 32.0,
   "12h_wind": false,
   "12h_wind_value": 16.6,
   "12h_gust": false,
-  "12h_gust_value": 31.7,
+  "12h_gust_value": 32.0,
   "24h_wind": false,
   "24h_wind_value": 16.6,
   "24h_gust": false,
-  "24h_gust_value": 31.7,
+  "24h_gust_value": 32.0,
   "48h_wind": false,
   "48h_wind_value": 16.6,
   "48h_gust": false,
-  "48h_gust_value": 31.7
+  "48h_gust_value": 32.0
 }
