@@ -1,18 +1,18 @@
 {
   "6h_wind": false,
-  "6h_wind_value": 14.2,
+  "6h_wind_value": 10.8,
   "6h_gust": false,
-  "6h_gust_value": 28.1,
+  "6h_gust_value": 19.1,
   "12h_wind": false,
-  "12h_wind_value": 14.2,
-  "12h_gust": false,
-  "12h_gust_value": 28.1,
+  "12h_wind_value": 19.6,
+  "12h_gust": true,
+  "12h_gust_value": 47.2,
   "24h_wind": false,
-  "24h_wind_value": 26.0,
+  "24h_wind_value": 20.8,
   "24h_gust": true,
-  "24h_gust_value": 48.2,
+  "24h_gust_value": 47.2,
   "48h_wind": false,
-  "48h_wind_value": 26.0,
+  "48h_wind_value": 20.8,
   "48h_gust": true,
-  "48h_gust_value": 48.2
+  "48h_gust_value": 47.2
 }
