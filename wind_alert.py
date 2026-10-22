@@ -76,7 +76,16 @@ def get_wind_forecast():
     return None
 
 def check_wind_thresholds(data):
-    """Verifica se il vento medio o le raffiche superano la soglia impostata nelle diverse finestre temporali"""
+    """Verifica il vento massimo per ogni finestra temporale non sovrapposta.
+    
+    Le finestre sono suddivise in blocchi consecutivi di 6 ore:
+    - 6h: ora attuale alle ore +6
+    - 12h: ore +6 alle ore +12
+    - 24h: ore +12 alle ore +24
+    - 48h: ore +24 alle ore +48
+    
+    Questo evita valori ripetuti poiché ogni ora appartiene a una sola finestra.
+    """
     if not data or 'hourly' not in data:
         print("[ERRORE] Dati mancanti o senza sezione 'hourly'")
         return None
@@ -90,27 +99,54 @@ def check_wind_thresholds(data):
         wind_speed = wind_speeds[i]
         gust_speed = gust_speeds[i] if i < len(gust_speeds) else 0
         hourly_data.append((time_str, wind_speed, gust_speed))
-    
+
     print(f"[DEBUG] Numero di record orari: {len(hourly_data)}")
 
     # Ordina i dati per timestamp
     hourly_data.sort(key=lambda x: x[0])
 
-    # Definisci le finestre temporali da controllare
+    # Definisci le finestre temporali non sovrapposte (blocchi di 6 ore)
     now = datetime.now()
     thresholds = {}
-    for hours in [6, 12, 24, 48]:
-        # Calcola l'intervallo di tempo da controllare
+    
+    # Calcola gli orari di inizio/fine per ogni finestra
+    window_hours = [6, 12, 24, 48]
+    window_labels = ["6h", "12h", "24h", "48h"]
+    
+    for i, hours in enumerate(window_hours):
         start_time = now
         end_time = now + timedelta(hours=hours)
         
-        # Trova il valore massimo di vento e raffica nell'intervallo
+        # Per finestre non sovrapposte, calcoliamo l'intervallo specifico
+        # 6h: ora attuale alle ore +6
+        # 12h: ore +6 alle ore +12
+        # 24h: ore +12 alle ore +24
+        # 48h: ore +24 alle ore +48
+        
+        if i == 0:
+            # Prima finestra: dalle ore attuali alle ore +6
+            window_start = now
+            window_end = now + timedelta(hours=6)
+        elif i == 1:
+            # Seconda finestra: dalle ore +6 alle ore +12
+            window_start = now + timedelta(hours=6)
+            window_end = now + timedelta(hours=12)
+        elif i == 2:
+            # Terza finestra: dalle ore +12 alle ore +24
+            window_start = now + timedelta(hours=12)
+            window_end = now + timedelta(hours=24)
+        else:
+            # Quarta finestra: dalle ore +24 alle ore +48
+            window_start = now + timedelta(hours=24)
+            window_end = now + timedelta(hours=48)
+        
+        # Trova il valore massimo di vento e raffica nell'intervallo specifico
         max_wind = 0
         max_gust = 0
         
         for time_str, wind_speed, gust_speed in hourly_data:
             time_dt = datetime.strptime(time_str, '%Y-%m-%dT%H:%M')
-            if start_time <= time_dt <= end_time:
+            if window_start <= time_dt <= window_end:
                 if wind_speed > max_wind:
                     max_wind = wind_speed
                 if gust_speed > max_gust:
@@ -119,14 +155,18 @@ def check_wind_thresholds(data):
         exceeds_wind = max_wind > WIND_THRESHOLD
         exceeds_gust = max_gust > WIND_THRESHOLD
         
-        thresholds[f"{hours}h_wind"] = exceeds_wind
-        thresholds[f"{hours}h_wind_value"] = max_wind
-        thresholds[f"{hours}h_gust"] = exceeds_gust
-        thresholds[f"{hours}h_gust_value"] = max_gust
+        labels = ["wind", "gust"]
+        values = [max_wind, max_gust]
+        exceeds = [exceeds_wind, exceeds_gust]
         
-        print(f"[DEBUG] Controllo {hours}h vento: max {max_wind} km/h -> supera {WIND_THRESHOLD}? {exceeds_wind}")
-        print(f"[DEBUG] Controllo {hours}h raffica: max {max_gust} km/h -> supera {WIND_THRESHOLD}? {exceeds_gust}")
-
+        for j, label in enumerate(labels):
+            key = f"{window_labels[i]}_{label}"
+            value_key = f"{window_labels[i]}_{label}_value"
+            thresholds[key] = exceeds[j]
+            thresholds[value_key] = values[j]
+            
+            print(f"[DEBUG] Controllo {window_labels[i]} {label}: max {values[j]} km/h -> supera {WIND_THRESHOLD}? {exceeds[j]}")
+    
     return thresholds
 
 def load_previous_state():
